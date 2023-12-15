@@ -1,0 +1,25 @@
+version: '3.5'
+services:
+  py-srv:
+    build: py-srv
+    command: sh -c "/wait && python app.py"
+    environment:
+      - WAIT_HOSTS=db:9042
+      - WAIT_HOSTS_TIMEOUT=300
+      - WAIT_SLEEP_INTERVAL=30
+      - WAIT_HOST_CONNECT_TIMEOUT=30
+
+  db:
+    image: cassandra:4.0
+    ports:
+      - "9042:9042"
+    healthcheck:
+      test: [ "CMD", "ls", "/opt/cassandra/bin" ]
+      interval: 15s
+      timeout: 10s
+      retries: 10
+    environment:
+      - CASSANDRA_HOST=db
+      - CASSANDRA_SEEDS=db
+      - CASSANDRA_PASSWORD_SEEDER=yes
+      - CASSANDRA_CLUSTER_NAME=citizix
